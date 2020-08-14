@@ -1,0 +1,68 @@
+{% extends "base.html" %}
+
+{% block body %}
+<h1><a href="/entry/{{ entry.slug }}">{{ entry.title }}</a></h1>
+<div class="date">{{ locale.format_date(entry.published, full_format=True, shorter=True) }}</div>
+<img src="C:/Users/ASUS/Desktop/tornado_master/demos/blog/uploads/{{entry.slug}}.jpg" width = "120" height = "90">
+<div class="body">{% raw entry.html %}</div>
+comments:<br>
+{%if entry.comments %}
+<div id="xx"> {{entry.comments}}
+  <p id="demo"></p>
+</div>
+{%end%}
+<form action="/entry/{{ entry.slug }}" method="get">
+  <p>This post has {{up}} upvotes and {{down}} downvotes</p>
+  {# {% if votes %} #}
+  <p>You {{ votes }} this</p>
+  {# {% end %} #}
+  <button name="vote" type="submit" value="like">Like</button>
+  <button name="vote" type="submit" value="dislike">Dislike</button><br>
+ 	     Comment:<input name="comment" type="text">
+   {% module xsrf_form_html() %}
+   <input type="submit">
+   </form>
+   <script>
+   var myObj, myJSON, mytext, obj;
+   var mytext = document.getElementById("xx").innerHTML;
+   var myObj = {innerHTML:"yyy"};
+   myObj.innerHTML = mytext;
+   myJSON = JSON.stringify(myObj);
+   obj = JSON.parse(myJSON);
+   var str=obj.innerHTML;
+   var res = str.split("~");
+   var text="";
+   var arrayLength = res.length;
+   for (var i = 0; i < arrayLength; i++) {
+   var comment="";
+   var user="";
+   var flag=0;
+   for (var j = res[i].length-2; j >-1 ; j--)
+   {
+   if (flag==0)
+   {
+     if (res[i][j]=="'")
+     {
+     flag=1;
+     j-=1;
+     }
+     else
+     user+=res[i][j];
+   }
+   else if(flag==1)
+     comment+=res[i][j];
+   }
+   comment = comment.split("");
+   comment = comment.reverse();
+   comment = comment.join("");
+   user = user.split("");
+   user = user.reverse();
+   user = user.join("");
+   if (comment.length!=0)
+   text +="user_id"+user+" : " + comment +"<br>";
+   }
+   document.getElementById("xx").innerHTML =text;
+
+   </script>
+
+{% end %}

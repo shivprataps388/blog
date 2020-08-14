@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block body %}
+  <p>Welcome to BLOG!</p>
+  <h2>This is your Profile</h2>
+  <p>Posts created by you are:</p>
+  {% for entry in entries %}
+    {% module Entry(entry) %}
+    {% if current_user %}
+      <div class="admin"><a href="/compose?id={{ entry.id }}">{{ _("Edit this post") }}</a></div>
+    {% end %}
+  {% end %}
+  {% end %}

@@ -1,0 +1,57 @@
+You must have PostgreSQL installed to run this demo.
+
+If you have `docker` and `docker-compose` installed, the demo and all
+its prerequisites can be installed with `docker-compose up`.
+
+1. Install a database if needed
+
+Refer https://www.postgresql.org to install database for
+   your platform.
+
+2. Install Python prerequisites
+
+   This demo requires Python 3.5 or newer, and the packages used are:
+   aiopg
+   markdown
+   psycopg2
+   tornado
+
+3. Create a database and user for the blog.
+
+   Connect to the database with `psql -U postgres`
+   Create a database and user, and grant permissions:
+
+   CREATE DATABASE blog;
+   CREATE USER blog WITH PASSWORD 'blog';
+   GRANT ALL ON DATABASE blog TO blog;
+
+5. Run the blog example
+
+   ./blog.py or python blog.py
+
+6. Visit your new blog
+
+   Open http://localhost:8888/ in your web browser.(if it doesn't load at first, try clearing your cache )
+
+NOTE - After clicking on comment and Likes or Dislikes, RELOAD THE PAGE to see its effect.
+
+Initially no users are present in database, so you need to create one. You will be redirected to /login/ where you will see Need an account(user registration).
+
+After creating one account, you will be redirected to your profile page or homePage.
+
+On right Side you will see Trending, Sign Out, Create New post links.
+
+Below every Post you will see "Edit" button. If You go there you can edit the post and UPLOAD THE IMAGE as well.
+After uploading image you will be redirected to Profile Page. Images will be saved in uploads folder with name "n-th-post.jpg".
+You can also delete the post only by you by going to "Edit" button on Profile.
+
+On Trending page, you will see posts by all users, which have been sorted by UPVOTE/(UPVOTE+DOWNVOTE), So a post have most Upvotes doesn't necessarily be on top.
+Each time you upvote or downvote the post, all posts will be sorted.
+
+Click on titles of Post and you will be redirected to see complete post, including image, Number of upvotes and Downvotes, Whether you have upvoted this post or not.
+Below the post is comment section, you can see comments by various user_id (you will be assigned user_id when you create account).
+Below is comment Box for you to type.
+You can either Like or DisLike.
+
+
+Thanks for reading this.

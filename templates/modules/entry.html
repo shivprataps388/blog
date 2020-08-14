@@ -1,0 +1,5 @@
+<div class="entry">
+  <h1><a href="/entry/{{ entry.slug }}">{{ entry.title }}</a></h1>
+  <div class="date">{{ locale.format_date(entry.published, full_format=True, shorter=True) }}</div>
+  <div class="body">{% raw entry.html %}</div>
+</div>
