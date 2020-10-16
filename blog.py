@@ -112,7 +112,6 @@ class BaseHandler(tornado.web.RequestHandler):
 
     async def prepare(self):
         user_id = self.get_secure_cookie("blogdemo_user")
-        #print(user_id)
         if user_id:
             self.current_user = await self.queryone(
                 "SELECT * FROM authors WHERE id = %s", int(user_id)
@@ -125,6 +124,7 @@ class BaseHandler(tornado.web.RequestHandler):
 class IndexHandler(BaseHandler):
     def get(self,slug):
         self.render("upload_form.html",slug=slug)
+
 class UploadHandler(tornado.web.RequestHandler):
     async def post(self,slug):
         file1 = self.request.files['file1'][0]
@@ -132,23 +132,40 @@ class UploadHandler(tornado.web.RequestHandler):
         extension = '.jpg'
         f_name=slug
         final_n=slug+extension
-        output_file = open("uploads/" + final_n, 'wb')
+        output_file = open("static/uploads/" + final_n, 'wb')
         output_file.write(file1['body'])
         self.redirect("/")
         #self.finish("file" + final_filename + " is uploaded")
+
 class HomeHandler(BaseHandler):
         @tornado.web.authenticated
         async def get(self):
             id = self.get_secure_cookie("blogdemo_user")
+            name = await self.queryone(
+            "SELECT name FROM authors WHERE id =%s",
+            int(id),
+            )
+            auth_name=name['name'].upper()
             entries = await self.query(
                 "SELECT * FROM entries WHERE author_id = %s", int(id)
             )
-            self.render("home.html",entries=entries)
+
+            self.render("home.html",entries=entries,auth_name=auth_name)
 
 
 
 class DeleteHandler(BaseHandler):
     async def post(self, slug):
+        file_name=slug+'.jpg'
+        file_path = '/static/uploads/'+file_name
+        try:
+            os.remove(file_path)
+        except OSError as e:
+            print("Error: %s : %s" % (file_path, e.strerror))
+        # del_path=os.path.join(os.path.dirname(__file__), "static/uploads/")
+        # print(del_path)
+        # if del_path.exists("file_name"):
+        #   os.remove("file_name")
         await self.execute("DELETE  FROM entries WHERE slug = %s", slug)
         self.render("delete.html")
 
@@ -192,7 +209,13 @@ class EntryHandler(BaseHandler):
 
         if self.get_argument("comment"):
             #print(self.get_argument("comment"))
-            comment=str(self.get_argument("comment")+str(self.get_secure_cookie("blogdemo_user"))+"~")
+            name = await self.queryone(
+            "SELECT name FROM authors WHERE id =%s",
+            int(id),
+            )
+            # print(name)
+            comment=str(self.get_argument("comment")+"~"+str(name['name'])+"~")
+            # print(comment)
             await self.execute(
                 "UPDATE entries SET comments = %s || comments "
                 "WHERE id = %s",
@@ -225,43 +248,17 @@ class EntryHandler(BaseHandler):
                     slug,
                 )
 
-def Sort_Tuple(tup):
-
-    # reverse = None (Sorts in Ascending order)
-    # key is set to sort using second element of
-    # sublist lambda has been used
-    tup.sort(key = lambda x: x[1])
-    return tup
 class ArchiveHandler(BaseHandler):
     @tornado.web.authenticated
     async def get(self):
         entries = await self.query("SELECT * FROM entries ORDER BY published DESC")
-        l=[]
-        #print(entries)
+        q= "SELECT ID, NAME FROM authors "
+        res=await self.query(q)
+        final_res={}
+        for _ in res:
+            final_res[_['id']]=_['name']
         for i in range(len(entries)):
-            cur=entries[i]
-            up=await self.query("SELECT sum(vote) FROM votes WHERE vote =%s AND slug = %s",int(1),cur['slug'])
-            down=await self.query("SELECT sum(vote) FROM votes WHERE vote =%s AND slug = %s",int(-1),cur['slug'])
-            down=down[0]
-            up=up[0]
-            if up['sum']!=None:
-                up=up['sum']
-            else:
-                up=0
-            if down['sum']!=None:
-                down=down['sum']*-1
-            else:
-                down=0
-            if up+down==0:
-                l.append((cur,0))
-            else:
-                count=up/(up+down)
-                l.append((cur,count))
-        tup=Sort_Tuple(l)
-        #print(tup)
-        entries=[]
-        for i in range(len(tup)):
-            entries.append(tup[len(tup)-i-1][0])
+            entries[i]['auth_name']=final_res[entries[i]['author_id']]
         self.render("archive.html", entries=entries)
 
 class FeedHandler(BaseHandler):
@@ -339,7 +336,7 @@ class AuthCreateHandler(BaseHandler):
         author = await self.queryone(
             "INSERT INTO authors (email, name, hashed_password) "
             "VALUES (%s, %s, %s) RETURNING id",
-            self.get_argument("email"),
+            self.get_argument("email").lower(),
             self.get_argument("name"),
             tornado.escape.to_unicode(hashed_password),
         )
@@ -356,7 +353,7 @@ class AuthLoginHandler(BaseHandler):
     async def post(self):
         try:
             author = await self.queryone(
-                "SELECT * FROM authors WHERE email = %s", self.get_argument("email")
+                "SELECT * FROM authors WHERE email = %s", self.get_argument("email").lower()
             )
         except NoResultError:
             self.render("login.html", error="email not found")
@@ -381,8 +378,6 @@ class EntryModule(tornado.web.UIModule):
 
 async def main():
     tornado.options.parse_command_line()
-
-    # Create the global connection pool.
     async with aiopg.create_pool(
         host=options.db_host,
         port=options.db_port,
@@ -393,9 +388,6 @@ async def main():
         await maybe_create_tables(db)
         app = Application(db)
         app.listen(options.port)
-        # In this demo the server will simply run until interrupted
-        # with Ctrl-C, but if you want to shut down more gracefully,
-        # call shutdown_event.set().
         shutdown_event = tornado.locks.Event()
         await shutdown_event.wait()
 

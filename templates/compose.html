@@ -35,6 +35,7 @@
       $("input[name=title]").select();
       $("form.compose").submit(function() {
           var required = ["title", "markdown"];
+          console.log("called");
           var form = $(this).get(0);
           for (var i = 0; i < required.length; i++) {
               if (!form[required[i]].value) {

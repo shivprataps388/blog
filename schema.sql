@@ -1,4 +1,4 @@
--- Postgres SQL has been used for Database management 
+-- Postgres SQL has been used for Database management
 -- To create the database:
 --   CREATE DATABASE blog;
 --   CREATE USER blog WITH PASSWORD 'blog';
@@ -8,7 +8,7 @@ DROP TABLE IF EXISTS authors;
 CREATE TABLE authors (
     id SERIAL PRIMARY KEY,
     email VARCHAR(100) NOT NULL UNIQUE,
-    name VARCHAR(100) NOT NULL,
+    name VARCHAR(100) NOT NULL UNIQUE,
     hashed_password VARCHAR(100) NOT NULL
 );
 
@@ -20,7 +20,7 @@ CREATE TABLE entries (
     title VARCHAR(512) NOT NULL,
     markdown TEXT NOT NULL,
     html TEXT NOT NULL,
-    comments TEXT DEFAULT '~',
+    comments TEXT,
     published TIMESTAMP NOT NULL,
     updated TIMESTAMP NOT NULL
 );

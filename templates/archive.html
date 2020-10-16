@@ -22,8 +22,10 @@
 {% block body %}
   <ul class="archive">
     {% for entry in entries %}
-    <div class="body">Published by user_id {{entry.author_id}}</div>
+    <div class="body" style="border: 2px solid black;margin:4px;border-radius:15px;margin-bottom:25px">
+      <p style="color:#982ddb">Published by {{entry.auth_name}}</p>
     {% module Entry(entry) %}
+    </div>
     {%end%}
   </ul>
   {% end %}
