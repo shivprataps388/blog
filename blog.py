@@ -125,7 +125,7 @@ class IndexHandler(BaseHandler):
     def get(self,slug):
         self.render("upload_form.html",slug=slug)
 
-class UploadHandler(tornado.web.RequestHandler):
+class UploadHandler(BaseHandler):
     async def post(self,slug):
         file1 = self.request.files['file1'][0]
         original_fname = file1['filename']
@@ -134,6 +134,12 @@ class UploadHandler(tornado.web.RequestHandler):
         final_n=slug+extension
         output_file = open("static/uploads/" + final_n, 'wb')
         output_file.write(file1['body'])
+        await self.execute(
+            "UPDATE entries SET image_flag = %s "
+            "WHERE slug = %s",
+            str(1),
+            slug,
+        )
         self.redirect("/")
         #self.finish("file" + final_filename + " is uploaded")
 

@@ -1,5 +1,9 @@
 <div class="entry" style="margin:10px">
   <div class="date" style="margin-bottom:5px;color:crimson">{{ locale.format_date(entry.published, full_format=True, shorter=True) }}</div>
   <h2 style="color:blue"><a href="/entry/{{ entry.slug }}">{{ entry.title }}</a></h2>
+  {%if entry.image_flag %}
+    <img src="/static/uploads/{{ entry.slug }}.jpg" width = "120" height = "90">
+  </div>
+  {%end%}
   <div class="body">{% raw entry.html %}</div>
 </div>

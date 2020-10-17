@@ -4,9 +4,10 @@
 <h1><a href="/entry/{{ entry.slug }}">{{ entry.title }}</a></h1>
 
 <div class="date">{{ locale.format_date(entry.published, full_format=True, shorter=True) }}</div>
-
+{%if entry.image_flag %}
   <img src="/static/uploads/{{ entry.slug }}.jpg" width = "120" height = "90">
-
+</div>
+{%end%}
 <div class="body" style="font-size:30px">{% raw entry.html %}</div>
 comments:<br>
 {%if entry.comments %}

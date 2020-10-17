@@ -20,9 +20,10 @@ CREATE TABLE entries (
     title VARCHAR(512) NOT NULL,
     markdown TEXT NOT NULL,
     html TEXT NOT NULL,
-    comments TEXT,
+    comments TEXT DEFAULT :,
     published TIMESTAMP NOT NULL,
-    updated TIMESTAMP NOT NULL
+    updated TIMESTAMP NOT NULL,
+    image_flag BOOLEAN DEFAULT FALSE
 );
 
 DROP TABLE IF EXISTS votes;
